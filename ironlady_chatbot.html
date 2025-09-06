@@ -1,18 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Iron Lady Chatbot (Gemini)</title>
+  <title>Iron Lady Chatbot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: Arial, sans-serif; background: #ece5dd; }
-    #chatbox { width: 400px; margin: 40px auto; border-radius: 10px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 600px; }
-    #messages { flex: 1; overflow-y: auto; padding: 15px; }
-    .msg { margin: 8px 0; max-width: 70%; padding: 10px 14px; border-radius: 16px; line-height: 1.4; }
+    body { font-family: Arial, sans-serif; background: #ece5dd; margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    #chatbox {
+      width: 90%;
+      max-width: 600px;
+      margin: 20px auto;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      height: 80vh;
+    }
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+    }
+    .msg {
+      margin: 8px 0;
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 16px;
+      line-height: 1.4;
+      word-wrap: break-word;
+    }
     .user { background: #dcf8c6; align-self: flex-end; }
     .bot { background: #f1f0f0; align-self: flex-start; }
     #inputArea { display: flex; border-top: 1px solid #ccc; }
-    #userInput { flex: 1; padding: 10px; border: none; outline: none; }
-    button { background: #25d366; border: none; color: white; padding: 10px 16px; cursor: pointer; }
+    #userInput { flex: 1; padding: 10px; border: none; outline: none; font-size: 16px; }
+    button { background: #25d366; border: none; color: white; padding: 10px 16px; cursor: pointer; font-size: 16px; }
     button:hover { background: #20b358; }
+
+    @media screen and (max-width: 500px) {
+      #chatbox { width: 95%; height: 80vh; }
+      .msg { max-width: 85%; }
+    }
   </style>
 </head>
 <body>
@@ -45,11 +72,10 @@
       You are an AI assistant for Iron Lady (https://iamironlady.com), 
       an EdTech company focused on leadership development programs for women.
       Answer only in this context. 
-      If the user asks about Iron Lady programs, coaching, leadership, career, 
+      If the user asks about Iron Lady programs, coaching, leadership, 
       or internships, respond with helpful, professional answers. 
       Do not go outside this domain.
       `;
-      
       const res = await model.generateContent(`${context}\n\nUser question: ${query}`);
       return res.response.text();
     }
@@ -70,10 +96,12 @@
       const input = inputEl.value.trim();
       if (!input) return;
 
+      // Show user message
       messages.innerHTML += `<div class="msg user">${input}</div>`;
       inputEl.value = "";
       messages.scrollTop = messages.scrollHeight;
 
+      // Get bot reply
       const reply = await getAnswer(input);
       messages.innerHTML += `<div class="msg bot">${reply}</div>`;
       messages.scrollTop = messages.scrollHeight;
@@ -82,12 +110,8 @@
     // Event listeners
     document.getElementById("sendBtn").addEventListener("click", sendMessage);
     document.getElementById("userInput").addEventListener("keypress", (e) => {
-      if (e.key === "Enter") {
-        sendMessage();
-      }
+      if (e.key === "Enter") sendMessage();
     });
   </script>
 </body>
 </html>
-
-    
