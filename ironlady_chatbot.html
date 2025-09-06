@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Iron Lady Chatbot (Gemini)</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #ece5dd; }
+    #chatbox { width: 400px; margin: 40px auto; border-radius: 10px; background: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.2); display: flex; flex-direction: column; height: 600px; }
+    #messages { flex: 1; overflow-y: auto; padding: 15px; }
+    .msg { margin: 8px 0; max-width: 70%; padding: 10px 14px; border-radius: 16px; line-height: 1.4; }
+    .user { background: #dcf8c6; align-self: flex-end; }
+    .bot { background: #f1f0f0; align-self: flex-start; }
+    #inputArea { display: flex; border-top: 1px solid #ccc; }
+    #userInput { flex: 1; padding: 10px; border: none; outline: none; }
+    button { background: #25d366; border: none; color: white; padding: 10px 16px; cursor: pointer; }
+    button:hover { background: #20b358; }
+  </style>
+</head>
+<body>
+  <div id="chatbox">
+    <div id="messages"></div>
+    <div id="inputArea">
+      <input type="text" id="userInput" placeholder="Type your question..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
+
+    // FAQ data
+    const faqData = {
+      "programs": "Iron Lady offers leadership development programs focusing on women leadership, confidence building, executive presence, and corporate readiness.",
+      "duration": "Programs usually range between 6 weeks to 6 months depending on the course level.",
+      "mode": "Most programs are conducted online with live interactive sessions.",
+      "certificate": "Yes, certificates are provided upon successful completion of the program.",
+      "mentors": "The mentors include senior corporate leaders, certified leadership coaches, and Iron Lady’s founder."
+    };
+
+    // Initialize Gemini client
+    const genAI = new GoogleGenerativeAI("AIzaSyDwjYT1KebdlqPd6h9lv2SoqhiHRm51eek");
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+    async function getAIResponse(query) {
+      const context = `
+      You are an AI assistant for Iron Lady (https://iamironlady.com), 
+      an EdTech company focused on leadership development programs for women.
+      Answer only in this context. 
+      If the user asks about Iron Lady programs, coaching, leadership, career, 
+      or internships, respond with helpful, professional answers. 
+      Do not go outside this domain.
+      `;
+      
+      const res = await model.generateContent(`${context}\n\nUser question: ${query}`);
+      return res.response.text();
+    }
+
+    async function getAnswer(query) {
+      query = query.toLowerCase();
+      if (query.includes("program")) return faqData.programs;
+      else if (query.includes("duration") || query.includes("long")) return faqData.duration;
+      else if (query.includes("online") || query.includes("offline") || query.includes("mode")) return faqData.mode;
+      else if (query.includes("certificate")) return faqData.certificate;
+      else if (query.includes("mentor") || query.includes("coach")) return faqData.mentors;
+      else return await getAIResponse(query);
+    }
+
+    async function sendMessage() {
+      const inputEl = document.getElementById("userInput");
+      const messages = document.getElementById("messages");
+      const input = inputEl.value.trim();
+      if (!input) return;
+
+      messages.innerHTML += `<div class="msg user">${input}</div>`;
+      inputEl.value = "";
+      messages.scrollTop = messages.scrollHeight;
+
+      const reply = await getAnswer(input);
+      messages.innerHTML += `<div class="msg bot">${reply}</div>`;
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Event listeners
+    document.getElementById("sendBtn").addEventListener("click", sendMessage);
+    document.getElementById("userInput").addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+  </script>
+</body>
+</html>
+
+    
